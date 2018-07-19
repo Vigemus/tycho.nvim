@@ -1,9 +1,10 @@
 -- luacheck: globals unpack vim.api
 local nvim = vim.api
+local impl = require("tycho.core")
 local tycho = {
-  core = {},
   api = {},
-  cache = {}
+  core = impl.core,
+  cache = impl.cache
 }
 
 local sugar = {
@@ -26,36 +27,6 @@ local sugar = {
   end
 }
 
-tycho.core.register = function(namespace, fn)
-  local cache = rawget(tycho, "cache")
-  rawset(cache, namespace, fn)
-end
-
-tycho.core.call = function(namespace, ...)
-  local fn = rawget(tycho, "cache")[namespace]
-  return fn(...)
-end
-
-tycho.core.map = function(namespace, kw, ...)
-  local args = {...}
-  local command = "'" .. namespace .. "'"
-  if #args >= 0 then
-    for _, i in ipairs(args) do
-      if type(i) == "string" then
-        command = command .. ", '" .. i .. "'"
-      else
-        command = command .. ", " .. i
-      end
-    end
-  end
-
-  nvim.nvim_command("map " .. kw .. " <Cmd>lua tycho.core.call(" .. command .. ")<CR>")
-end
-
-tycho.core.debug = function()
-  print(require("inspect")(tycho))
-end
-
 tycho.api.map = function(keymap, fn)
   local func
   local ns
@@ -70,6 +41,10 @@ tycho.api.map = function(keymap, fn)
 
   tycho.core.register(ns, func)
   tycho.core.map(ns, keymap)
+end
+
+tycho.api.debug = function()
+  print(require("inspect")(tycho))
 end
 
 setmetatable(tycho, sugar)
