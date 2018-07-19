@@ -2,6 +2,10 @@
 
 An indirection layer between neovim and idiomatic lua
 
+## Warning
+
+This is highly experminetal and the API is constantly changing.
+
 ## Why?
 
 Sometimes it's hard to interop lua and VimL. You have a nice function in lua,
@@ -13,48 +17,44 @@ Tycho exists to solve that gap.
 
 ## How?
 
-Tycho has two APIs:
+Tycho has three APIs:
 
-### The formal API
+### The formal API (aka. core)
 
-This is the explicit version:
+This is the actual implementation of how tycho talks to neovim.
+All the other implementations are a matter of taste and were build on top of this one:
 ```lua
--- Note that I'm calling the API member
-local tycho = require("tycho").api
+local tycho = require("tycho")
 
 -- Register your function
-tycho.register("my_awesome_function", function()
+tycho.core.register("my_awesome_function", function()
   print("Hello from Tycho!")
 end)
 
 -- Add the mapping in neovim
-tycho.map("my_awesome_function", "<Space>!")
+tycho.core.map("my_awesome_function", "<Space>!")
 
 -- With arguments
-tycho.register("another_function", function(t, msg)
+tycho.core.register("another_function", function(t, msg)
   for i = t, 0, -1 do
     print(msg)
   end
 end)
 
-tycho.map("another_function", "<Space><CR>", 10, 'Mapped with arguments")
+tycho.core.map("another_function", "<Space><CR>", 10, 'Mapped with arguments")
 
 ```
 
 ### The sugared version
 
-This is an attempt to make the API more fluid:
+This is an attempt to make the api fluid and hide the integration bits.
 ```lua
--- This one uses the root object
 local tycho = require("tycho")
 
 -- Directly assign to tycho table to register the function
 tycho.my_awesome_function = function()
   print("Hello from Tycho!")
 end
-
--- If no arguments, can be a String
-tycho.my_awesome_function.map = "<Space>!"
 
 -- A more complex example
 tycho.another_function = function(t, msg)
@@ -63,8 +63,22 @@ tycho.another_function = function(t, msg)
   end
 end
 
--- For multiple arguments, a table is needed
-tycho.another_function.map = {"<Space><CR>", 10, 'Mapped with arguments"}
+-- You map passing the assigned object
+tycho.api.map("<Space>!", tycho.my_awesome_function)
+
+-- You can also map anonymous functions
+tycho.api.map("<Space>!", function()
+  print("Hello from Tycho!")
+end)
+
+local my_fn = function(a, b)
+  print(a + b)
+end
+
+-- But you can't pass arguments to it
+tycho.api.map("<Space><CR>", function()
+  my_fn(12, 30)
+end)
 ```
 
 
