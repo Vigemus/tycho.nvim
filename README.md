@@ -90,4 +90,4 @@ end)
 
 ## Why the name?
 
-It is a [visible crater](https://upload.wikimedia.org/wikipedia/commons/e/ea/Lage_des_Mondkraters_Tycho.jpg) on the moon and I thoght that'd be a nice analogy to this small gap :)
+It is a [visible crater](https://upload.wikimedia.org/wikipedia/commons/e/ea/Lage_des_Mondkraters_Tycho.jpg) on the moon and I thought that'd be a nice analogy for this small gap :)
