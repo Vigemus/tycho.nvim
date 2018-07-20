@@ -15,72 +15,23 @@ Or maybe you're interested in using your function as a handler for asynchronous 
 
 Tycho exists to solve that gap.
 
-## How?
+Also, take a look at [this issue](https://github.com/Vigemus/tycho.nvim/issues/2) so you can understand a little better.
 
-Tycho has three APIs:
+## Who is this plugin for?
 
-### The formal API (aka. core)
+This is a resource for plugin writers that want o use the lua API.
+It allows a one to write plugins in lua purely, without needing to think about the interop or viml semantics.
 
-This is the actual implementation of how tycho talks to neovim.
-All the other implementations are a matter of taste and were build on top of this one:
+## How do I use it?
+
 ```lua
-local tycho = require("tycho")
-
--- Register your function
-tycho.core.register("my_awesome_function", function()
-  print("Hello from Tycho!")
-end)
-
--- Add the mapping in neovim
-tycho.core.map("my_awesome_function", "<Space>!")
-
--- With arguments
-tycho.core.register("another_function", function(t, msg)
-  for i = t, 0, -1 do
-    print(msg)
-  end
-end)
-
-tycho.core.map("another_function", "<Space><CR>", 10, 'Mapped with arguments")
-
+-- Mapping a lua function to a key sequence:
+tycho.map{
+  ns = ..., -- (unique name of current module)
+  fn = "my_function",
+  keys = "<leader>q"
+}
 ```
-
-### The sugared version
-
-This is an attempt to make the api fluid and hide the integration bits.
-```lua
-local tycho = require("tycho")
-
--- Directly assign to tycho table to register the function
-tycho.my_awesome_function = function()
-  print("Hello from Tycho!")
-end
-
--- A more complex example
-tycho.another_function = function(t, msg)
-  for i = t, 0, -1 do
-    print(msg)
-  end
-end
-
--- You map passing the assigned object
-tycho.api.map("<Space>!", tycho.my_awesome_function)
-
--- You can also map anonymous functions
-tycho.api.map("<Space>!", function()
-  print("Hello from Tycho!")
-end)
-
-local my_fn = function(a, b)
-  print(a + b)
-end
-
--- But you can't pass arguments to it
-tycho.api.map("<Space><CR>", function()
-  my_fn(12, 30)
-end)
-```
-
 
 ## What comes next
 
