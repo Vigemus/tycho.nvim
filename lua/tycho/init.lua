@@ -3,22 +3,9 @@ local nvim = vim.api
 local tycho = {}
 local utils = require("tycho.utils")
 
---[[
-
-example usage:
-
-tycho.map{
-  ns = ...,
-  fn = "myfn",
-  args = {"arg", 123}, -- optional
-  keys = "<leader>p"
-}
-
---]]
-tycho.map = function(obj)
+tycho.as_nvim_command = function(obj)
   assert(obj.ns ~= nil and type(obj.ns) == "string", "Must supply a string namespace")
   assert(obj.fn ~= nil and type(obj.fn) == "string", "Must supply the name of the function")
-  assert(obj.keys ~= nil and type(obj.keys) == "string", "Must supply keys to be mapped")
   assert(utils.get_qualified(require(obj.ns), obj.fn) ~= nil, "Unable to find function")
 
   local command = "lua require('" .. obj.ns .. "')." .. obj.fn .. "("
@@ -32,6 +19,22 @@ tycho.map = function(obj)
     end
   end
   command = command .. ")"
+
+  return command
+end
+
+--[[
+tycho.map{
+  ns = ...,
+  fn = "myfn",
+  args = {"arg", 123}, -- optional
+  keys = "<leader>p"
+}
+
+produces: `map <leader>p <Cmd>lua require("myns").myfn("arg", 123)<CR>`
+--]]
+tycho.map = function(obj)
+  assert(obj.keys ~= nil and type(obj.keys) == "string", "Must supply keys to be mapped")
 
   nvim.nvim_command("map " .. obj.keys .. " <Cmd>" .. command .. "<CR>")
 end
